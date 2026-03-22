@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import PostForm   from './PostForm';
-import ResultCard from './ResultCard';
+import PostForm    from './PostForm';
+import ResultCard  from './ResultCard';
+import ApiKeyInput from './ApiKeyInput';
 
 export default function App() {
   const [platform, setPlatform] = useState('X（Twitter）');
@@ -9,10 +10,15 @@ export default function App() {
   const [posts,    setPosts]    = useState([]);
   const [loading,  setLoading]  = useState(false);
   const [error,    setError]    = useState('');
+  const [apiKey,   setApiKey]   = useState(''); // ユーザーのAPIキー
 
   const handleGenerate = async () => {
     if (!theme.trim()) {
       setError('テーマを入力してください');
+      return;
+    }
+    if (!apiKey.trim()) {
+      setError('APIキーを入力してください');
       return;
     }
     setLoading(true);
@@ -23,7 +29,7 @@ export default function App() {
       const res = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ platform, tone, theme }),
+        body: JSON.stringify({ platform, tone, theme, apiKey }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? '生成に失敗しました');
@@ -40,9 +46,14 @@ export default function App() {
       <h1 style={{ fontSize: 22, fontWeight: 500, marginBottom: 4 }}>
         SNS投稿ジェネレーター
       </h1>
-      <p style={{ fontSize: 14, color: '#666', marginBottom: 32 }}>
+      <p style={{ fontSize: 14, color: '#666', marginBottom: 24 }}>
         テーマを入れるだけでAIが投稿文を3案作成します
       </p>
+
+      {/* APIキー入力欄 */}
+      <ApiKeyInput apiKey={apiKey} setApiKey={setApiKey} />
+
+      {/* 投稿フォーム */}
       <PostForm
         platform={platform}  setPlatform={setPlatform}
         tone={tone}          setTone={setTone}
