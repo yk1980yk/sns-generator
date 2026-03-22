@@ -9,7 +9,7 @@ export default function App() {
   const [posts,     setPosts]     = useState([]);
   const [loading,   setLoading]   = useState(false);
   const [error,     setError]     = useState('');
-  const [remaining, setRemaining] = useState(5); // 残り回数
+  const [remaining, setRemaining] = useState(5);
 
   const handleGenerate = async () => {
     if (!theme.trim()) {
@@ -29,7 +29,7 @@ export default function App() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? '生成に失敗しました');
       setPosts(data.posts);
-      setRemaining(data.remaining); // 残り回数を更新
+      setRemaining(data.remaining);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -45,8 +45,6 @@ export default function App() {
       <p style={{ fontSize: 14, color: '#666', marginBottom: 8 }}>
         テーマを入れるだけでAIが投稿文を3案作成します
       </p>
-
-      {/* 残り回数表示 */}
       <p style={{
         fontSize: 12,
         color: remaining <= 1 ? '#e74c3c' : '#999',
@@ -54,9 +52,26 @@ export default function App() {
       }}>
         今日の残り回数：{remaining} / 5回
       </p>
-
       <PostForm
-        platform={platform}  setPlatform={setPlatform}
-        tone={tone}          setTone={setTone}
-        theme={theme}        setTheme={setTheme}
-        onGenerate={handleG
+        platform={platform}
+        setPlatform={setPlatform}
+        tone={tone}
+        setTone={setTone}
+        theme={theme}
+        setTheme={setTheme}
+        onGenerate={handleGenerate}
+        loading={loading}
+      />
+      {error && (
+        <p style={{ color: '#c0392b', fontSize: 13, marginTop: 12 }}>{error}</p>
+      )}
+      {posts.length > 0 && (
+        <ResultCard
+          posts={posts}
+          platform={platform}
+          onRegenerate={handleGenerate}
+        />
+      )}
+    </div>
+  );
+}
